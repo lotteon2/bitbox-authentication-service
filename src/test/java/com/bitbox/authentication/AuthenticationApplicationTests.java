@@ -1,4 +1,4 @@
-package com.bixbox.authentication;
+package com.bitbox.authentication;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

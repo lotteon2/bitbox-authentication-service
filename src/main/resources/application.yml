@@ -1,5 +1,41 @@
+server:
+  port: 8888
+
 spring:
-  cloud:
-    config:
-      url: http://127.0.0.1:8888
-      name: authentication-service
+  redis:
+    host: localhost
+    port: 6379
+
+  h2:
+    console:
+      enabled: true
+      settings:
+        web-allow-others: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/bit
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+jwt:
+  secret: clzEbe2fQH7WrBMoj5uq/BHiSCQb/S2iyFU6mhJPWVI=
+  access-expire: 3600000
+  refresh-expire: 86400000
+
+oauth:
+  kakao:
+    client-id: f9aff69361ab63ff0638e2cd8860aabf
+    client-secret: 0zh3AuTWX6bCWJ5EyG5jl3qR6sFl1s5w
+    redirect-uri: http://localhost:8888/oauth/token
+    client-authentication-method: POST
+    authorization-grant-type: authorization_code
+    scope: openid
+    client-name: Kakao
