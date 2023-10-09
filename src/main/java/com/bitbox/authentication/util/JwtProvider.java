@@ -1,0 +1,79 @@
+package com.bitbox.authentication.util;
+
+import com.bitbox.authentication.enums.TokenType;
+import com.bitbox.authentication.vo.JwtPayload;
+import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+@Component
+public class JwtProvider {
+
+    private final long accessExpire;
+    private final long refreshExpire;
+    private final Key key;
+    private final JwtBuilder jwtBuilder;
+
+    JwtProvider(@Value("${jwt.access-expire}") long accessExpire,
+                @Value("${jwt.refresh-expire}") long refreshExpire,
+                @Value("${jwt.secret}") String secret) {
+        this.accessExpire = accessExpire;
+        this.refreshExpire = refreshExpire;
+        this.key = new SecretKeySpec(DatatypeConverter.parseBase64Binary(secret),
+                SignatureAlgorithm.HS256.getJcaName());
+        this.jwtBuilder = Jwts.builder();
+    }
+
+    public String generateAccessToken(final long regDate, final JwtPayload jwtPayload) {
+        return jwtBuilder
+                .setHeader(createHeader())
+                .setSubject(TokenType.ACCESS.getValue())
+                .setClaims(createClaims(jwtPayload))
+                .setExpiration(createExpireDate(regDate, this.accessExpire))
+                .signWith(SignatureAlgorithm.HS256, this.key)
+                .compact();
+    }
+
+    public String generateRefreshToken(final long regDate, final JwtPayload jwtPayload) {
+        return jwtBuilder
+                .setHeader(createHeader())
+                .setSubject(TokenType.REFRESH.getValue())
+                .setClaims(createClaims(jwtPayload))
+                .setExpiration(createExpireDate(regDate, this.refreshExpire))
+                .signWith(SignatureAlgorithm.HS256, this.key)
+                .compact();
+    }
+
+    private static Map<String, Object> createHeader() {
+        Map<String, Object> header = new HashMap<>();
+
+        header.put("typ", "JWT");
+        header.put("alg", "HS256");
+
+        return header;
+    }
+
+    private static Map<String, Object> createClaims(final JwtPayload jwtPayload) {
+        Map<String, Object> claims = new HashMap<>();
+
+        claims.put("member_id", jwtPayload.getMemberId());
+        claims.put("class_id", jwtPayload.getClassId());
+        claims.put("member_authority", jwtPayload.getMemberAuthority());
+        claims.put("member_nickname", jwtPayload.getMemberNickname());
+
+        return claims;
+    }
+
+    private static Date createExpireDate(final long regDate, final long expire) {
+        return new Date(regDate + expire);
+    }
+}
