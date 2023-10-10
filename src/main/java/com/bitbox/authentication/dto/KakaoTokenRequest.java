@@ -1,15 +1,13 @@
 package com.bitbox.authentication.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.beans.factory.annotation.Value;
 
 @Setter
 @Getter
 @Builder
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class KakaoTokenRequest {
     private final String GRANT_TYPE = "authorization_code";
 
