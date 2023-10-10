@@ -5,13 +5,13 @@ import com.bitbox.authentication.client.OAuthKakaoFeignClient;
 import com.bitbox.authentication.dto.*;
 import com.bitbox.authentication.entity.AuthMember;
 import com.bitbox.authentication.entity.InvitedEmail;
-import com.bitbox.authentication.enums.AuthorityType;
 import com.bitbox.authentication.service.AuthMemberService;
 import com.bitbox.authentication.service.InvitedEmailService;
 import com.bitbox.authentication.service.JwtService;
 import com.bitbox.authentication.service.OAuthKakaoService;
 import com.bitbox.authentication.vo.JwtPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.github.bitbox.bitbox.enums.AuthorityType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -51,7 +51,7 @@ public class OAuthController {
             @RequestParam(name = "error_description", required = false) String errorDescription
     ) {
         // kakao에서 인가 코드 받아오는데 문제가 생겼다면 early return
-        if(error != null && errorDescription != null) {
+        if(!error.isBlank() && !errorDescription.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDescription);
         }
 

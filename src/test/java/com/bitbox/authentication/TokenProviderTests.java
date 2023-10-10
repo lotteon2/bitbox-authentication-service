@@ -1,9 +1,9 @@
 package com.bitbox.authentication;
 
-import com.bitbox.authentication.enums.AuthorityType;
-import com.bitbox.authentication.enums.TokenType;
 import com.bitbox.authentication.util.JwtProvider;
 import com.bitbox.authentication.vo.JwtPayload;
+import io.github.bitbox.bitbox.enums.AuthorityType;
+import io.github.bitbox.bitbox.enums.TokenType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

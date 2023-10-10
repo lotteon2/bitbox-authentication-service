@@ -1,6 +1,6 @@
 package com.bitbox.authentication.entity;
 
-import com.bitbox.authentication.enums.AuthorityType;
+import io.github.bitbox.bitbox.enums.AuthorityType;
 import lombok.Getter;
 
 import javax.persistence.*;

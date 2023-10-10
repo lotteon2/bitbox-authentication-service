@@ -1,6 +1,6 @@
 package com.bitbox.authentication.vo;
 
-import com.bitbox.authentication.enums.AuthorityType;
+import io.github.bitbox.bitbox.enums.AuthorityType;
 import lombok.Builder;
 import lombok.Data;
 

@@ -1,7 +1,7 @@
 package com.bitbox.authentication.util;
 
-import com.bitbox.authentication.enums.TokenType;
 import com.bitbox.authentication.vo.JwtPayload;
+import io.github.bitbox.bitbox.enums.TokenType;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
