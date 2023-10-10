@@ -1,5 +1,7 @@
 package com.bitbox.authentication;
 
+import com.bitbox.authentication.enums.AuthorityType;
+import com.bitbox.authentication.enums.TokenType;
 import com.bitbox.authentication.util.JwtProvider;
 import com.bitbox.authentication.vo.JwtPayload;
 import org.junit.jupiter.api.DisplayName;
@@ -23,12 +25,12 @@ public class TokenProviderTests {
         JwtPayload jwtPayload = JwtPayload.builder()
                 .classId(null)
                 .memberId("UUID")
-                .memberAuthority("MANAGER")
+                .memberAuthority(AuthorityType.MANAGER)
                 .memberNickname("manager")
                 .build();
 
         String accessToken =
-                jwtProvider.generateAccessToken(System.currentTimeMillis(), jwtPayload);
+                jwtProvider.generateAccessToken(System.currentTimeMillis(), TokenType.ACCESS, jwtPayload);
 
         logger.info(accessToken);
 
@@ -41,12 +43,12 @@ public class TokenProviderTests {
         JwtPayload jwtPayload = JwtPayload.builder()
                 .classId(null)
                 .memberId("UUID")
-                .memberAuthority("MANAGER")
+                .memberAuthority(AuthorityType.MANAGER)
                 .memberNickname("manager")
                 .build();
 
         String refreshToken =
-                jwtProvider.generateRefreshToken(System.currentTimeMillis(), jwtPayload);
+                jwtProvider.generateRefreshToken(System.currentTimeMillis(), TokenType.REFRESH, jwtPayload);
 
         logger.info(refreshToken);
 

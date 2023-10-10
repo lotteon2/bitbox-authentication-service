@@ -33,9 +33,9 @@ public class JwtProvider {
         this.jwtBuilder = Jwts.builder();
     }
 
-    public String generateAccessToken(final long regDate, final JwtPayload jwtPayload) {
+    public String generateAccessToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
         return jwtBuilder
-                .setHeader(createHeader())
+                .setHeader(createHeader(tokenType))
                 .setSubject(TokenType.ACCESS.getValue())
                 .setClaims(createClaims(jwtPayload))
                 .setExpiration(createExpireDate(regDate, this.accessExpire))
@@ -43,9 +43,9 @@ public class JwtProvider {
                 .compact();
     }
 
-    public String generateRefreshToken(final long regDate, final JwtPayload jwtPayload) {
+    public String generateRefreshToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
         return jwtBuilder
-                .setHeader(createHeader())
+                .setHeader(createHeader(tokenType))
                 .setSubject(TokenType.REFRESH.getValue())
                 .setClaims(createClaims(jwtPayload))
                 .setExpiration(createExpireDate(regDate, this.refreshExpire))
@@ -53,10 +53,10 @@ public class JwtProvider {
                 .compact();
     }
 
-    private static Map<String, Object> createHeader() {
+    private static Map<String, Object> createHeader(TokenType tokenType) {
         Map<String, Object> header = new HashMap<>();
 
-        header.put("typ", "JWT");
+        header.put("typ", tokenType);
         header.put("alg", "HS256");
 
         return header;

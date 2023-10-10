@@ -78,7 +78,7 @@ public class OAuthController {
                             .memberId(authMember.get().getMemberId())
                             .classId(authMember.get().getClassId())
                             .memberNickname(authMember.get().getMemberNickname())
-                            .memberAuthority(AuthorityType.TRAINEE.name())
+                            .memberAuthority(AuthorityType.TRAINEE)
                             .build());
 
                     memberFeignClient.updateAuthority(
@@ -106,7 +106,7 @@ public class OAuthController {
                             .memberId(authMember.get().getMemberId())
                             .classId(authMember.get().getClassId())
                             .memberNickname(authMember.get().getMemberNickname())
-                            .memberAuthority(authMember.get().getMemberAuthority().name())
+                            .memberAuthority(authMember.get().getMemberAuthority())
                             .build());
                 }
             }
