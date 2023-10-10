@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(indexes = @Index(name = "idx_email_password", columnList = "admin_email, admin_password"))
+@Table(indexes = @Index(name = "idx_email_password", columnList = "adminEmail, adminPassword"))
 public class AuthAdmin {
     @Id
     private String adminId;
@@ -31,6 +31,6 @@ public class AuthAdmin {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private boolean isDeleted;
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted;
 }
