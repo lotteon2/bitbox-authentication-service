@@ -1,6 +1,7 @@
 package com.bitbox.authentication.service;
 
 import com.bitbox.authentication.dto.KakaoIdTokenPayload;
+import com.bitbox.authentication.dto.KakaoTokenRequest;
 import com.bitbox.authentication.dto.KakaoTokenResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,6 +37,15 @@ public class OAuthKakaoService {
                 .append("&")
                 .append("scope=").append(env.getProperty("oauth.kakao.scope"))
                 .toString();
+    }
+
+    public KakaoTokenRequest createKakaoTokenRequest(String code) {
+        return KakaoTokenRequest.builder()
+                .code(code)
+                .clientId(env.getProperty("oauth.kakao.client-id"))
+                .clientSecret(env.getProperty("oauth.kakao.client-secret"))
+                .redirectUri(env.getProperty("oauth.kakao.redirect-uri"))
+                .build();
     }
 
     public KakaoIdTokenPayload decodeKakaoIdToken(KakaoTokenResponse kakaoTokenResponse) throws JsonProcessingException {

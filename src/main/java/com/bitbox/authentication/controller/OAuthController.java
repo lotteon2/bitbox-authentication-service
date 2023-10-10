@@ -51,14 +51,16 @@ public class OAuthController {
             @RequestParam(name = "error_description", required = false) String errorDescription
     ) {
         // kakao에서 인가 코드 받아오는데 문제가 생겼다면 early return
-        if(!error.isBlank() && !errorDescription.isBlank()) {
+        if(error != null && errorDescription != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDescription);
         }
 
         try {
+            KakaoTokenRequest kakaoTokenRequest = oAuthKakaoService.createKakaoTokenRequest(code);
+
             // kakao와의 통신에서 문제가 발생할 경우 error handling
             KakaoTokenResponse kakaoTokenResponse =
-                    oAuthKakaoFeignClient.getTokenFromKakao(KakaoTokenRequest.builder().code(code).build().toString());
+                    oAuthKakaoFeignClient.getTokenFromKakao(kakaoTokenRequest.toString());
 
             // decoding 과정에서 문제가 발생할 경우 error handling
             KakaoIdTokenPayload kakaoIdTokenPayload = oAuthKakaoService.decodeKakaoIdToken(kakaoTokenResponse);
@@ -69,7 +71,14 @@ public class OAuthController {
             Optional<InvitedEmail> invitedEmail =
                     invitedEmailService.findInvitedEmailByEmail(kakaoIdTokenPayload.getEmail());
 
-            TokenResponse tokenResponse = null;
+            TokenResponse tokenResponse = jwtService.generateTokens(JwtPayload.builder()
+                    .memberNickname(kakaoIdTokenPayload.getNickname())
+                    .memberAuthority(AuthorityType.GENERAL)
+                    .memberId("UUID")
+                    .classId(null)
+                    .build());
+
+            /*TokenResponse tokenResponse = null;
 
             // member service와의 통신에서 문제가 발생할 경우 error handling
             if(invitedEmail.isPresent()) {
@@ -109,7 +118,7 @@ public class OAuthController {
                             .memberAuthority(authMember.get().getMemberAuthority())
                             .build());
                 }
-            }
+            }*/
 
             return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
 
