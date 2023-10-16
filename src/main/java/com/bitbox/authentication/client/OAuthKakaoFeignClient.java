@@ -1,7 +1,7 @@
 package com.bitbox.authentication.client;
 
 import com.bitbox.authentication.config.OAuthKakaoFeignConfig;
-import com.bitbox.authentication.dto.KakaoTokenResponse;
+import com.bitbox.authentication.dto.response.KakaoTokenResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
