@@ -1,11 +1,11 @@
 package com.bitbox.authentication.util;
 
-import com.bitbox.authentication.vo.JwtPayload;
 import io.github.bitbox.bitbox.enums.TokenType;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -19,16 +19,18 @@ import java.util.Map;
 public class JwtProvider {
 
     private final long accessExpire;
+
     private final long refreshExpire;
-    private final Key key;
+
     private final JwtBuilder jwtBuilder;
 
-    JwtProvider(@Value("${jwt.access-expire}") long accessExpire,
-                @Value("${jwt.refresh-expire}") long refreshExpire,
-                @Value("${jwt.secret}") String secret) {
-        this.accessExpire = accessExpire;
-        this.refreshExpire = refreshExpire;
-        this.key = new SecretKeySpec(DatatypeConverter.parseBase64Binary(secret),
+    private final Key key;
+
+    public JwtProvider(Environment env) {
+        this.accessExpire = Long.parseLong(env.getProperty("jwt.access-expire"));
+        this.refreshExpire = Long.parseLong(env.getProperty("jwt.refresh-expire"));
+        this.key = new SecretKeySpec(
+                DatatypeConverter.parseBase64Binary(env.getProperty("jwt.secret")),
                 SignatureAlgorithm.HS256.getJcaName());
         this.jwtBuilder = Jwts.builder();
     }
