@@ -1,9 +1,9 @@
 package com.bitbox.authentication.service;
 
-import com.bitbox.authentication.dto.TokenResponse;
+import com.bitbox.authentication.dto.response.TokenResponse;
 import com.bitbox.authentication.util.JwtProvider;
-import com.bitbox.authentication.vo.JwtPayload;
 import io.github.bitbox.bitbox.enums.TokenType;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
