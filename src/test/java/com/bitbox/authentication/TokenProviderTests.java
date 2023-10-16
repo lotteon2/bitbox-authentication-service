@@ -1,17 +1,19 @@
 package com.bitbox.authentication;
 
 import com.bitbox.authentication.util.JwtProvider;
-import com.bitbox.authentication.vo.JwtPayload;
 import io.github.bitbox.bitbox.enums.AuthorityType;
 import io.github.bitbox.bitbox.enums.TokenType;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.logging.Logger;
 
 @SpringBootTest
+@ActiveProfiles("dev")
 public class TokenProviderTests {
 
     Logger logger = Logger.getLogger("TokenProvider Logger");
