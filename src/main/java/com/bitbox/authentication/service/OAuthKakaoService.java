@@ -2,9 +2,8 @@ package com.bitbox.authentication.service;
 
 import com.bitbox.authentication.client.KafkaClient;
 import com.bitbox.authentication.client.MemberFeignClient;
-import com.bitbox.authentication.dto.*;
+import com.bitbox.authentication.dto.KakaoIdTokenPayload;
 import com.bitbox.authentication.dto.request.KakaoTokenRequest;
-import com.bitbox.authentication.dto.request.MemberRequest;
 import com.bitbox.authentication.dto.response.KakaoTokenResponse;
 import com.bitbox.authentication.entity.AuthMember;
 import com.bitbox.authentication.entity.InvitedEmail;
@@ -13,13 +12,14 @@ import com.bitbox.authentication.repository.InvitedEmailRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import io.github.bitbox.bitbox.dto.MemberRegisterDto;
 import io.github.bitbox.bitbox.enums.AuthorityType;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import io.github.bitbox.bitbox.jwt.JwtPayload;
 
 import java.net.URI;
 import java.util.Base64;
@@ -90,11 +90,11 @@ public class OAuthKakaoService {
                         .memberAuthority(AuthorityType.TRAINEE)
                         .build();
             } else { // CREATE_MEMBER_AUTHORITY_TRAINEE
-                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRequest.builder()
-                        .memberEmail(kakaoIdTokenPayload.getEmail())
-                        .memberNickname(kakaoIdTokenPayload.getNickname())
-                        .memberAuthority(AuthorityType.TRAINEE)
-                        .memberProfileImg(kakaoIdTokenPayload.getPicture())
+                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRegisterDto.builder()
+                        .email(kakaoIdTokenPayload.getEmail())
+                        .name(kakaoIdTokenPayload.getNickname())
+                        .authority(AuthorityType.TRAINEE)
+                        .profileImg(kakaoIdTokenPayload.getPicture())
                         .classId(invitedEmail.get().getClassId())
                         .build());
 
@@ -115,15 +115,13 @@ public class OAuthKakaoService {
                         .memberAuthority(authMember.get().getMemberAuthority())
                         .build();
             } else { // CREATE_MEMBER_AUTHORITY_GENERAL
-                MemberRequest memberRequest = MemberRequest.builder()
-                        .memberEmail(kakaoIdTokenPayload.getEmail())
-                        .memberNickname(kakaoIdTokenPayload.getNickname())
-                        .memberAuthority(AuthorityType.GENERAL)
-                        .memberProfileImg(kakaoIdTokenPayload.getPicture())
+                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRegisterDto.builder()
+                        .email(kakaoIdTokenPayload.getEmail())
+                        .name(kakaoIdTokenPayload.getNickname())
+                        .authority(AuthorityType.GENERAL)
+                        .profileImg(kakaoIdTokenPayload.getPicture())
                         .classId(null)
-                        .build();
-
-                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(memberRequest);
+                        .build());
 
                 jwtPayload = JwtPayload.builder()
                         .classId(null)
