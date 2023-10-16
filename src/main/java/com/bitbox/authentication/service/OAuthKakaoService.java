@@ -1,17 +1,29 @@
 package com.bitbox.authentication.service;
 
-import com.bitbox.authentication.dto.KakaoIdTokenPayload;
-import com.bitbox.authentication.dto.KakaoTokenRequest;
-import com.bitbox.authentication.dto.KakaoTokenResponse;
+import com.bitbox.authentication.client.KafkaClient;
+import com.bitbox.authentication.client.MemberFeignClient;
+import com.bitbox.authentication.dto.*;
+import com.bitbox.authentication.dto.request.KakaoTokenRequest;
+import com.bitbox.authentication.dto.request.MemberRequest;
+import com.bitbox.authentication.dto.response.KakaoTokenResponse;
+import com.bitbox.authentication.entity.AuthMember;
+import com.bitbox.authentication.entity.InvitedEmail;
+import com.bitbox.authentication.repository.AuthMemberRepository;
+import com.bitbox.authentication.repository.InvitedEmailRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
+import io.github.bitbox.bitbox.enums.AuthorityType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 
 import java.net.URI;
 import java.util.Base64;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +31,11 @@ public class OAuthKakaoService {
     private final Environment env;
     private final ObjectMapper objectMapper;
     private final Base64.Decoder decoder;
+
+    private final AuthMemberRepository authMemberRepository;
+    private final InvitedEmailRepository invitedEmailRepository;
+    private final MemberFeignClient memberFeignClient;
+    private final KafkaClient memberKafkaClient;
 
     public HttpHeaders redirect(String redirectURI) {
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -51,5 +68,72 @@ public class OAuthKakaoService {
     public KakaoIdTokenPayload decodeKakaoIdToken(KakaoTokenResponse kakaoTokenResponse) throws JsonProcessingException {
         return objectMapper.readValue(new String(decoder.decode(kakaoTokenResponse.getIdToken().split("\\.")[1])),
                 KakaoIdTokenPayload.class);
+    }
+
+    // TODO : REFACTORING
+    public JwtPayload convertToJwtPayload(KakaoIdTokenPayload kakaoIdTokenPayload) throws FeignException {
+        Optional<AuthMember> authMember =
+                authMemberRepository.findByMemberEmailAndDeletedIsFalse(kakaoIdTokenPayload.getEmail());
+        Optional<InvitedEmail> invitedEmail =
+                invitedEmailRepository.findByEmail(kakaoIdTokenPayload.getEmail());
+        JwtPayload jwtPayload;
+        // member service와의 통신에서 문제가 발생할 경우 error handling
+        if(invitedEmail.isPresent()) {
+            if(authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
+                memberKafkaClient.createMemberAuthorityModifyEvent(authMember.get().getMemberId(),
+                        authMember.get().getMemberAuthority());
+
+                jwtPayload = JwtPayload.builder()
+                        .memberId(authMember.get().getMemberId())
+                        .classId(authMember.get().getClassId())
+                        .memberNickname(authMember.get().getMemberNickname())
+                        .memberAuthority(AuthorityType.TRAINEE)
+                        .build();
+            } else { // CREATE_MEMBER_AUTHORITY_TRAINEE
+                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRequest.builder()
+                        .memberEmail(kakaoIdTokenPayload.getEmail())
+                        .memberNickname(kakaoIdTokenPayload.getNickname())
+                        .memberAuthority(AuthorityType.TRAINEE)
+                        .memberProfileImg(kakaoIdTokenPayload.getPicture())
+                        .classId(invitedEmail.get().getClassId())
+                        .build());
+
+                jwtPayload = JwtPayload.builder()
+                        .classId(invitedEmail.get().getClassId())
+                        .memberId(memberCreateResponse.getBody())
+                        .memberNickname(kakaoIdTokenPayload.getNickname())
+                        .memberAuthority(AuthorityType.TRAINEE)
+                        .build();
+            }
+            invitedEmailRepository.delete(invitedEmail.get());
+        } else {
+            if(authMember.isPresent()) { // LOG_IN
+                jwtPayload = JwtPayload.builder()
+                        .classId(authMember.get().getClassId())
+                        .memberId(authMember.get().getMemberId())
+                        .memberNickname(authMember.get().getMemberNickname())
+                        .memberAuthority(authMember.get().getMemberAuthority())
+                        .build();
+            } else { // CREATE_MEMBER_AUTHORITY_GENERAL
+                MemberRequest memberRequest = MemberRequest.builder()
+                        .memberEmail(kakaoIdTokenPayload.getEmail())
+                        .memberNickname(kakaoIdTokenPayload.getNickname())
+                        .memberAuthority(AuthorityType.GENERAL)
+                        .memberProfileImg(kakaoIdTokenPayload.getPicture())
+                        .classId(null)
+                        .build();
+
+                ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(memberRequest);
+
+                jwtPayload = JwtPayload.builder()
+                        .classId(null)
+                        .memberId(memberCreateResponse.getBody())
+                        .memberNickname(kakaoIdTokenPayload.getNickname())
+                        .memberAuthority(AuthorityType.TRAINEE)
+                        .build();
+            }
+        }
+
+        return jwtPayload;
     }
 }
