@@ -1,17 +1,15 @@
 package com.bitbox.authentication.controller;
 
-import com.bitbox.authentication.client.MemberFeignClient;
 import com.bitbox.authentication.client.OAuthKakaoFeignClient;
-import com.bitbox.authentication.dto.*;
-import com.bitbox.authentication.entity.AuthMember;
-import com.bitbox.authentication.entity.InvitedEmail;
-import com.bitbox.authentication.service.AuthMemberService;
-import com.bitbox.authentication.service.InvitedEmailService;
+import com.bitbox.authentication.dto.KakaoIdTokenPayload;
+import com.bitbox.authentication.dto.request.KakaoTokenRequest;
+import com.bitbox.authentication.dto.response.KakaoTokenResponse;
+import com.bitbox.authentication.dto.response.TokenResponse;
 import com.bitbox.authentication.service.JwtService;
 import com.bitbox.authentication.service.OAuthKakaoService;
-import com.bitbox.authentication.vo.JwtPayload;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.github.bitbox.bitbox.enums.AuthorityType;
+import feign.FeignException;
+import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -21,19 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class OAuthController {
     private final OAuthKakaoFeignClient oAuthKakaoFeignClient;
-    private final MemberFeignClient memberFeignClient;
     private final OAuthKakaoService oAuthKakaoService;
     private final JwtService jwtService;
-    private final AuthMemberService authMemberService; // TODO : BAD SMELL
-    private final InvitedEmailService invitedEmailService; // TODO : BAD SMELL
 
     @GetMapping("auth/kakao")
     public ResponseEntity<?> redirectToKakao() {
@@ -65,64 +58,15 @@ public class OAuthController {
             // decoding 과정에서 문제가 발생할 경우 error handling
             KakaoIdTokenPayload kakaoIdTokenPayload = oAuthKakaoService.decodeKakaoIdToken(kakaoTokenResponse);
 
-            // TODO : 이하 서비스로
-            Optional<AuthMember> authMember =
-                    authMemberService.findAuthMemberByMemberEmailAndDeletedIsFalse(kakaoIdTokenPayload.getEmail());
-            Optional<InvitedEmail> invitedEmail =
-                    invitedEmailService.findInvitedEmailByEmail(kakaoIdTokenPayload.getEmail());
+            JwtPayload jwtPayload = oAuthKakaoService.convertToJwtPayload(kakaoIdTokenPayload);
 
-            TokenResponse tokenResponse = jwtService.generateTokens(JwtPayload.builder()
-                    .memberNickname(kakaoIdTokenPayload.getNickname())
-                    .memberAuthority(AuthorityType.GENERAL)
-                    .memberId("UUID")
-                    .classId(null)
-                    .build());
-
-            /*TokenResponse tokenResponse = null;
-
-            // member service와의 통신에서 문제가 발생할 경우 error handling
-            if(invitedEmail.isPresent()) {
-                if(authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
-                    tokenResponse = jwtService.generateTokens(JwtPayload.builder()
-                            .memberId(authMember.get().getMemberId())
-                            .classId(authMember.get().getClassId())
-                            .memberNickname(authMember.get().getMemberNickname())
-                            .memberAuthority(AuthorityType.TRAINEE)
-                            .build());
-
-                    memberFeignClient.updateAuthority(
-                            tokenResponse.getAccessToken(),
-                            tokenResponse.getRefreshToken()
-                    );
-                } else { // CREATE_MEMBER_AUTHORITY_TRAINEE
-                    memberFeignClient.createMember(MemberRequest.builder()
-                            .memberEmail(kakaoIdTokenPayload.getEmail())
-                            .memberNickName(kakaoIdTokenPayload.getNickname())
-                            .memberAuthority(AuthorityType.TRAINEE)
-                            .memberProfileImg(kakaoIdTokenPayload.getPicture())
-                            .build());
-                }
-            } else {
-                if(authMember.isEmpty()) { // CREATE_MEMBER_AUTHORITY_GENERAL
-                    memberFeignClient.createMember(MemberRequest.builder()
-                            .memberEmail(kakaoIdTokenPayload.getEmail())
-                            .memberNickName(kakaoIdTokenPayload.getNickname())
-                            .memberAuthority(AuthorityType.GENERAL)
-                            .memberProfileImg(kakaoIdTokenPayload.getPicture())
-                            .build());
-                } else { // LOG_IN
-                    tokenResponse = jwtService.generateTokens(JwtPayload.builder()
-                            .memberId(authMember.get().getMemberId())
-                            .classId(authMember.get().getClassId())
-                            .memberNickname(authMember.get().getMemberNickname())
-                            .memberAuthority(authMember.get().getMemberAuthority())
-                            .build());
-                }
-            }*/
+            TokenResponse tokenResponse = jwtService.generateTokens(jwtPayload);
 
             return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
 
         } catch (JsonProcessingException e) {
+            e.printStackTrace(); // TODO : handle exception
+        } catch (FeignException e) {
             e.printStackTrace(); // TODO : handle exception
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
