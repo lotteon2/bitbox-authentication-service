@@ -1,4 +1,4 @@
-package com.bitbox.authentication.dto;
+package com.bitbox.authentication.dto.request;
 
 import lombok.*;
 
