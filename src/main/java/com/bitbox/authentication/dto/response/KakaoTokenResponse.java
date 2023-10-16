@@ -1,4 +1,4 @@
-package com.bitbox.authentication.dto;
+package com.bitbox.authentication.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
