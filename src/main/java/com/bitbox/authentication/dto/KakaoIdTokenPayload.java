@@ -2,11 +2,9 @@ package com.bitbox.authentication.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.ToString;
 import org.springframework.lang.Nullable;
 
 @Getter
-@ToString
 public class KakaoIdTokenPayload {
     private String iss;
     private String aud;
