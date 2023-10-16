@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
+// TODO : use RedisTemplate
 public interface InvitedEmailRepository extends CrudRepository<InvitedEmail, String> {
-    Optional<InvitedEmail> findInvitedEmailByEmail(String email);
+    Optional<InvitedEmail> findByEmail(String email);
 }

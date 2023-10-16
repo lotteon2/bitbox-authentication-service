@@ -1,10 +1,10 @@
 package com.bitbox.authentication.entity;
 
 import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
 
-import javax.persistence.Id;
 
 @Builder
 @Getter
@@ -13,6 +13,8 @@ public class InvitedEmail {
     @Id
     private String id;
 
-    @Indexed // 명시적으로 Set 자료구조로 선언
+    @Indexed
     private String email;
+
+    private Long classId;
 }
