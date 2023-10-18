@@ -37,25 +37,6 @@ public class OAuthKakaoService {
     private final MemberFeignClient memberFeignClient;
     private final KafkaClient memberKafkaClient;
 
-    public HttpHeaders redirect(String redirectURI) {
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setLocation(URI.create(redirectURI));
-        return httpHeaders;
-    }
-
-    public String kakaoRedirectURI() {
-        return new StringBuilder()
-                .append("https://kauth.kakao.com/oauth/authorize?")
-                .append("client_id=").append(env.getProperty("oauth.kakao.client-id"))
-                .append("&")
-                .append("redirect_uri=").append(env.getProperty("oauth.kakao.redirect-uri"))
-                .append("&")
-                .append("response_type=").append("code")
-                .append("&")
-                .append("scope=").append(env.getProperty("oauth.kakao.scope"))
-                .toString();
-    }
-
     public KakaoTokenRequest createKakaoTokenRequest(String code) {
         return KakaoTokenRequest.builder()
                 .code(code)
