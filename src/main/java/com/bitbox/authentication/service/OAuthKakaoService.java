@@ -17,12 +17,10 @@ import io.github.bitbox.bitbox.enums.AuthorityType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.net.URI;
-import java.util.Base64;
+import java.util.Base64.Decoder;
 import java.util.Optional;
 
 @Service
@@ -30,7 +28,7 @@ import java.util.Optional;
 public class OAuthKakaoService {
     private final Environment env;
     private final ObjectMapper objectMapper;
-    private final Base64.Decoder decoder;
+    private final Decoder decoder;
 
     private final AuthMemberRepository authMemberRepository;
     private final InvitedEmailRepository invitedEmailRepository;
@@ -57,7 +55,7 @@ public class OAuthKakaoService {
                 authMemberRepository.findByMemberEmailAndDeletedIsFalse(kakaoIdTokenPayload.getEmail());
         Optional<InvitedEmail> invitedEmail =
                 invitedEmailRepository.findByEmail(kakaoIdTokenPayload.getEmail());
-        
+
         JwtPayload jwtPayload = null;
         // member service와의 통신에서 문제가 발생할 경우 error handling
         if(invitedEmail.isPresent() && authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
