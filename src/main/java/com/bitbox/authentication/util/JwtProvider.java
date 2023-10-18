@@ -2,14 +2,14 @@ package com.bitbox.authentication.util;
 
 import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -19,6 +19,7 @@ import java.util.Map;
 public class JwtProvider {
 
     private final JwtBuilder jwtBuilder;
+    private final JwtParser jwtParser;
 
     private final Key key;
 
@@ -27,6 +28,7 @@ public class JwtProvider {
                 DatatypeConverter.parseBase64Binary(env.getProperty("jwt.secret")),
                 SignatureAlgorithm.HS256.getJcaName());
         this.jwtBuilder = Jwts.builder();
+        this.jwtParser = Jwts.parser();
     }
 
     public String generateToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
@@ -37,6 +39,10 @@ public class JwtProvider {
                 .setExpiration(createExpireDate(regDate, tokenType))
                 .signWith(SignatureAlgorithm.HS256, this.key)
                 .compact();
+    }
+
+    public Claims parse(String jwt) {
+        return jwtParser.setSigningKey(key).parseClaimsJws(jwt).getBody();
     }
 
     private static Map<String, Object> createHeader(TokenType tokenType) {
