@@ -18,39 +18,23 @@ import java.util.Map;
 @Component
 public class JwtProvider {
 
-    private final long accessExpire;
-
-    private final long refreshExpire;
-
     private final JwtBuilder jwtBuilder;
 
     private final Key key;
 
     public JwtProvider(Environment env) {
-        this.accessExpire = Long.parseLong(env.getProperty("jwt.access-expire"));
-        this.refreshExpire = Long.parseLong(env.getProperty("jwt.refresh-expire"));
         this.key = new SecretKeySpec(
                 DatatypeConverter.parseBase64Binary(env.getProperty("jwt.secret")),
                 SignatureAlgorithm.HS256.getJcaName());
         this.jwtBuilder = Jwts.builder();
     }
 
-    public String generateAccessToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
+    public String generateToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
         return jwtBuilder
                 .setHeader(createHeader(tokenType))
-                .setSubject(TokenType.ACCESS.getValue())
+                .setSubject(tokenType.name())
                 .setClaims(createClaims(jwtPayload))
-                .setExpiration(createExpireDate(regDate, this.accessExpire))
-                .signWith(SignatureAlgorithm.HS256, this.key)
-                .compact();
-    }
-
-    public String generateRefreshToken(final long regDate, final TokenType tokenType, final JwtPayload jwtPayload) {
-        return jwtBuilder
-                .setHeader(createHeader(tokenType))
-                .setSubject(TokenType.REFRESH.getValue())
-                .setClaims(createClaims(jwtPayload))
-                .setExpiration(createExpireDate(regDate, this.refreshExpire))
+                .setExpiration(createExpireDate(regDate, tokenType))
                 .signWith(SignatureAlgorithm.HS256, this.key)
                 .compact();
     }
@@ -58,7 +42,7 @@ public class JwtProvider {
     private static Map<String, Object> createHeader(TokenType tokenType) {
         Map<String, Object> header = new HashMap<>();
 
-        header.put("typ", tokenType);
+        header.put("typ", tokenType.name());
         header.put("alg", "HS256");
 
         return header;
@@ -75,7 +59,7 @@ public class JwtProvider {
         return claims;
     }
 
-    private static Date createExpireDate(final long regDate, final long expire) {
-        return new Date(regDate + expire);
+    private static Date createExpireDate(final long regDate, final TokenType tokenType) {
+        return new Date(regDate + tokenType.getValue());
     }
 }
