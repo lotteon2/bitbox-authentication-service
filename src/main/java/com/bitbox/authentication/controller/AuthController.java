@@ -1,7 +1,7 @@
 package com.bitbox.authentication.controller;
 
 import com.bitbox.authentication.dto.request.LoginRequest;
-import com.bitbox.authentication.dto.response.TokenResponse;
+import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
 import com.bitbox.authentication.service.JwtService;
@@ -24,16 +24,17 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/admin")
-    public ResponseEntity<TokenResponse> localLogin(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Tokens> localLogin(@Valid @RequestBody LoginRequest loginRequest) {
         AuthAdmin authAdmin = authService.findAuthAdmin(loginRequest.getEmail(), loginRequest.getPassword());
 
-        TokenResponse tokenResponse = jwtService.generateTokens(JwtPayload.builder()
+        Tokens tokens = jwtService.generateTokens(JwtPayload.builder()
                 .memberAuthority(authAdmin.getAdminAuthority())
                 .memberNickname(authAdmin.getAdminName())
                 .memberId(authAdmin.getAdminId())
                 .classId(null)
                 .build());
 
-        return ResponseEntity.status(HttpStatus.OK).body(tokenResponse);
+
+        return ResponseEntity.status(HttpStatus.OK).body(tokens);
     }
 }
