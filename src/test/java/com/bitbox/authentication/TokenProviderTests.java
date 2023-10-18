@@ -50,7 +50,7 @@ public class TokenProviderTests {
                 .build();
 
         String refreshToken =
-                jwtProvider.generateRefreshToken(System.currentTimeMillis(), TokenType.REFRESH, jwtPayload);
+                jwtProvider.generateToken(System.currentTimeMillis(), TokenType.REFRESH, jwtPayload);
 
         logger.info(refreshToken);
 
