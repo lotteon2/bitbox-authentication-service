@@ -32,7 +32,7 @@ public class TokenProviderTests {
                 .build();
 
         String accessToken =
-                jwtProvider.generateAccessToken(System.currentTimeMillis(), TokenType.ACCESS, jwtPayload);
+                jwtProvider.generateToken(System.currentTimeMillis(), TokenType.ACCESS, jwtPayload);
 
         logger.info(accessToken);
 
