@@ -41,7 +41,7 @@ dependencies {
 	implementation 'javax.xml.bind:jaxb-api:2.3.1'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.h2database:h2'
-	implementation group: 'io.github.lotteon2', name: 'bitbox', version: '0.0.4' // -> 버전 증가 필요
+	implementation group: 'io.github.lotteon2', name: 'bitbox', version: '0.0.5.alpha-1' // -> 버전 증가 필요
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
