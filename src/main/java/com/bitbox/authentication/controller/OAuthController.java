@@ -45,17 +45,16 @@ public class OAuthController {
 
             JwtPayload jwtPayload = oAuthKakaoService.convertToJwtPayload(kakaoIdTokenPayload);
 
+            // TODO : REFACTORING
             Tokens tokens = jwtService.generateTokens(jwtPayload);
 
-            // TODO : REFACTORING
             Map<String, String> resultMap = new HashMap<>();
             resultMap.put("authority", jwtPayload.getMemberAuthority().name());
             resultMap.put("accessToken", tokens.getAccessToken());
 
-            ResponseCookie refreshTokenCookie = jwtService.refreshTokenCookie(tokens.getRefreshToken());
-
             return ResponseEntity.status(HttpStatus.OK)
-                    .header("refreshToken", refreshTokenCookie.toString())
+                    .header("Set-Cookie",
+                            jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
                     .body(resultMap);
 
         } catch (JsonProcessingException e) {
