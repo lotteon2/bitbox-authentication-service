@@ -6,5 +6,5 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.Optional;
 
 public interface AuthAdminRepository extends CrudRepository<AuthAdmin, String> {
-    Optional<AuthAdmin> findByAdminEmailAndAdminPasswordAndDeletedIsFalse(String adminEmail, String adminPassword);
+    Optional<AuthAdmin> findByAdminEmailAndDeletedIsFalse(String adminEmail);
 }
