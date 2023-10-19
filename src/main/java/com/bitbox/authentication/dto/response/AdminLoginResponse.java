@@ -2,7 +2,9 @@ package com.bitbox.authentication.dto.response;
 
 import io.github.bitbox.bitbox.enums.AuthorityType;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public class AdminLoginResponse extends LoginResponse {
     private boolean isFirstLogin;
