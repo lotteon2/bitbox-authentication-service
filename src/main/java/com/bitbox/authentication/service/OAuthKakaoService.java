@@ -7,6 +7,7 @@ import com.bitbox.authentication.dto.request.KakaoTokenRequest;
 import com.bitbox.authentication.dto.response.KakaoTokenResponse;
 import com.bitbox.authentication.entity.AuthMember;
 import com.bitbox.authentication.entity.InvitedEmail;
+import com.bitbox.authentication.exception.InternalException;
 import com.bitbox.authentication.repository.AuthMemberRepository;
 import com.bitbox.authentication.repository.InvitedEmailRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,9 +45,13 @@ public class OAuthKakaoService {
                 .build();
     }
 
-    public KakaoIdTokenPayload decodeKakaoIdToken(KakaoTokenResponse kakaoTokenResponse) throws JsonProcessingException {
-        return objectMapper.readValue(new String(decoder.decode(kakaoTokenResponse.getIdToken().split("\\.")[1])),
-                KakaoIdTokenPayload.class);
+    public KakaoIdTokenPayload decodeKakaoIdToken(KakaoTokenResponse kakaoTokenResponse) {
+        try {
+            return objectMapper.readValue(new String(decoder.decode(kakaoTokenResponse.getIdToken().split("\\.")[1])),
+                    KakaoIdTokenPayload.class);
+        } catch (JsonProcessingException e) {
+            throw new InternalException(e);
+        }
     }
 
     // TODO : REFACTORING
