@@ -4,6 +4,7 @@ import com.bitbox.authentication.client.OAuthKakaoFeignClient;
 import com.bitbox.authentication.dto.KakaoIdTokenPayload;
 import com.bitbox.authentication.dto.request.KakaoTokenRequest;
 import com.bitbox.authentication.dto.response.KakaoTokenResponse;
+import com.bitbox.authentication.dto.response.LoginResponse;
 import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.service.JwtService;
 import com.bitbox.authentication.service.OAuthKakaoService;
@@ -13,11 +14,13 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +35,7 @@ public class OAuthController {
     private final JwtService jwtService;
 
     @GetMapping("/kakao/token")
-    public ResponseEntity<Map<String, String>> getTokenFromKakaoAndAuth(@RequestParam String code) {
+    public ResponseEntity<LoginResponse> getTokenFromKakaoAndAuth(@RequestParam String code) {
         try {
             KakaoTokenRequest kakaoTokenRequest = oAuthKakaoService.createKakaoTokenRequest(code);
 
@@ -48,14 +51,14 @@ public class OAuthController {
             // TODO : REFACTORING
             Tokens tokens = jwtService.generateTokens(jwtPayload);
 
-            Map<String, String> resultMap = new HashMap<>();
-            resultMap.put("authority", jwtPayload.getMemberAuthority().name());
-            resultMap.put("accessToken", tokens.getAccessToken());
+            LoginResponse loginResponse = LoginResponse.builder()
+                    .accessToken(tokens.getAccessToken())
+                    .authority(jwtPayload.getMemberAuthority())
+                    .build();
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header("Set-Cookie",
-                            jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
-                    .body(resultMap);
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                    .body(loginResponse);
 
         } catch (JsonProcessingException e) {
             e.printStackTrace(); // TODO : handle exception
