@@ -1,21 +1,20 @@
 package com.bitbox.authentication.controller;
 
 import com.bitbox.authentication.dto.request.LoginRequest;
+import com.bitbox.authentication.dto.response.AdminLoginResponse;
 import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
 import com.bitbox.authentication.service.JwtService;
-import io.github.bitbox.bitbox.enums.AuthorityType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -25,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/admin")
-    public ResponseEntity<Map<String, String>> localLogin(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AdminLoginResponse> localLogin(@Valid @RequestBody LoginRequest loginRequest) {
         AuthAdmin authAdmin = authService.findAuthAdmin(loginRequest.getEmail(), loginRequest.getPassword());
 
         JwtPayload jwtPayload = JwtPayload.builder()
@@ -35,20 +34,21 @@ public class AuthController {
                 .classId(null)
                 .build();
 
-        // TODO : REFACTORING
         Tokens tokens = jwtService.generateTokens(jwtPayload);
-        Map<String, String> resultMap = new HashMap<>();
-        resultMap.put("authority", jwtPayload.getMemberAuthority().name());
-        resultMap.put("accessToken", tokens.getAccessToken());
+
+        AdminLoginResponse adminLoginResponse = new AdminLoginResponse(
+                tokens.getAccessToken(),
+                jwtPayload.getMemberAuthority(),
+                authService.isFirstLogin(authAdmin)
+        );
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie",
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
-                .body(resultMap);
+                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                .body(adminLoginResponse);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Map<String, String>> refresh(@RequestHeader("Refreshtoken") String refreshToken) {
+    public ResponseEntity<String> refresh(@CookieValue String refreshToken) {
         Claims claims = jwtService.parse(refreshToken);
 
         JwtPayload jwtPayload = JwtPayload.builder()
@@ -58,15 +58,10 @@ public class AuthController {
                 .classId(jwtService.getClassId(claims))
                 .build();
 
-        // TODO : REFACTORING
         Tokens tokens = jwtService.generateTokens(jwtPayload);
-        Map<String, String> resultMap = new HashMap<>();
-        resultMap.put("authority", jwtPayload.getMemberAuthority().name());
-        resultMap.put("accessToken", tokens.getAccessToken());
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header("Set-Cookie",
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
-                .body(resultMap);
+                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                .body(tokens.getAccessToken());
     }
 }
