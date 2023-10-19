@@ -26,9 +26,9 @@ public class JwtService {
                 .build();
     }
 
-    public ResponseCookie refreshTokenCookie(String refreshToken) {
+    public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge) {
         return ResponseCookie.from("refreshToken", refreshToken)
-                .maxAge(TokenType.REFRESH.getValue())
+                .maxAge(maxAge)
                 .path("/")
                 .domain("localhost") // TODO : env 등으로 변경?
                 .httpOnly(true)
