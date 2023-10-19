@@ -6,6 +6,7 @@ import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
 import com.bitbox.authentication.service.JwtService;
+import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,8 @@ public class AuthController {
         );
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE,
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
                 .body(adminLoginResponse);
     }
 
@@ -61,7 +63,15 @@ public class AuthController {
         Tokens tokens = jwtService.generateTokens(jwtPayload);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                .header(HttpHeaders.SET_COOKIE,
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
                 .body(tokens.getAccessToken());
+    }
+
+    @DeleteMapping("")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
+                .build();
     }
 }
