@@ -57,7 +57,6 @@ public class OAuthKakaoService {
                 invitedEmailRepository.findByEmail(kakaoIdTokenPayload.getEmail());
 
         JwtPayload jwtPayload = null;
-        // member service와의 통신에서 문제가 발생할 경우 error handling
         if(invitedEmail.isPresent() && authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
             memberKafkaClient.createMemberAuthorityModifyEvent(authMember.get().getMemberId(),
                     authMember.get().getMemberAuthority());

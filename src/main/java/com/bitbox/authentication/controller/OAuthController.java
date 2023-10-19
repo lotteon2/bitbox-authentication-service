@@ -27,7 +27,6 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/oauth")
-@CrossOrigin("*")
 @RequiredArgsConstructor
 public class OAuthController {
     private final OAuthKakaoFeignClient oAuthKakaoFeignClient;
@@ -36,14 +35,11 @@ public class OAuthController {
 
     @GetMapping("/kakao/token")
     public ResponseEntity<LoginResponse> getTokenFromKakaoAndAuth(@RequestParam String code) {
-        try {
             KakaoTokenRequest kakaoTokenRequest = oAuthKakaoService.createKakaoTokenRequest(code);
 
-            // kakao와의 통신에서 문제가 발생할 경우 error handling
             KakaoTokenResponse kakaoTokenResponse =
                     oAuthKakaoFeignClient.getTokenFromKakao(kakaoTokenRequest.toString());
 
-            // decoding 과정에서 문제가 발생할 경우 error handling
             KakaoIdTokenPayload kakaoIdTokenPayload = oAuthKakaoService.decodeKakaoIdToken(kakaoTokenResponse);
 
             JwtPayload jwtPayload = oAuthKakaoService.convertToJwtPayload(kakaoIdTokenPayload);
@@ -59,12 +55,5 @@ public class OAuthController {
             return ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
                     .body(loginResponse);
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); // TODO : handle exception
-        } catch (FeignException e) {
-            e.printStackTrace(); // TODO : handle exception
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
