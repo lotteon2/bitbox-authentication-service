@@ -30,6 +30,7 @@ public class JwtService {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .maxAge(TokenType.REFRESH.getValue())
                 .path("/")
+                .domain("localhost") // TODO : env 등으로 변경?
                 .httpOnly(true)
                 .sameSite("None")
 //                    .secure(true) // TODO : secure(true)시 https에서만 작동.
