@@ -53,7 +53,7 @@ public class OAuthController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken()).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
                     .body(loginResponse);
     }
 }
