@@ -33,6 +33,7 @@ public class OAuthController {
     private final OAuthKakaoService oAuthKakaoService;
     private final JwtService jwtService;
 
+    // 소셜 로그인
     @GetMapping("/kakao/token")
     public ResponseEntity<LoginResponse> getTokenFromKakaoAndAuth(@RequestParam String code) {
             KakaoTokenRequest kakaoTokenRequest = oAuthKakaoService.createKakaoTokenRequest(code);
