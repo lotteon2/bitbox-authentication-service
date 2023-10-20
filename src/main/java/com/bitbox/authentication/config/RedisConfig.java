@@ -1,5 +1,6 @@
 package com.bitbox.authentication.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -13,15 +14,12 @@ import org.springframework.web.client.RestTemplate;
 @EnableRedisRepositories
 public class RedisConfig {
 
+    @Value("${spring.redis.host}")
     private String host;
+    @Value("${spring.redis.port}")
     private String port;
+    @Value("${spring.redis.password}")
     private String password;
-
-    public RedisConfig(Environment env) {
-        this.host = env.getProperty("spring.redis.host");
-        this.port = env.getProperty("spring.redis.port");
-        this.password = env.getProperty("spring.redis.password");
-    }
 
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
