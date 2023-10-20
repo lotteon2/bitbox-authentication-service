@@ -26,6 +26,19 @@ public class JwtService {
                 .build();
     }
 
+    public boolean isValid(Claims accessClaims, Claims refreshClaims) {
+        // 리프레시 토큰 만료 시간 지났을 시
+        if(refreshClaims.getExpiration().getTime() > System.currentTimeMillis()) return false;
+
+        // Claims equals 없음.
+        return (
+                getClassId(accessClaims).equals(getClassId(refreshClaims)) &&
+                getMemberId(accessClaims).equals(getMemberId(refreshClaims)) &&
+                getMemberNickname(accessClaims).equals(getMemberNickname(refreshClaims)) &&
+                getMemberAuthority(accessClaims).equals(getMemberAuthority(refreshClaims))
+        );
+    }
+
     public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .maxAge(maxAge)
