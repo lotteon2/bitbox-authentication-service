@@ -1,10 +1,13 @@
 package com.bitbox.authentication.controller;
 
+import com.bitbox.authentication.dto.request.InvitedEmailRequest;
 import com.bitbox.authentication.dto.request.LoginRequest;
 import com.bitbox.authentication.dto.response.AdminLoginResponse;
+import com.bitbox.authentication.dto.response.InvitedEmailResponse;
 import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
+import com.bitbox.authentication.service.InvitedEmailService;
 import com.bitbox.authentication.service.JwtService;
 import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
@@ -16,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,7 +27,22 @@ import javax.validation.Valid;
 public class AuthController {
     private final JwtService jwtService;
     private final AuthService authService;
+    private final InvitedEmailService invitedEmailService;
 
+    // 교육생 초대 시 REST 요청? kafka?
+    @PostMapping("/invited-member")
+    public ResponseEntity<Void> inviteMember(@Valid @RequestBody InvitedEmailRequest invitedEmailRequest) {
+        invitedEmailService.save(invitedEmailRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    // 초대된 교육생 전체 목록 조회
+    @GetMapping("/invited-member")
+    public ResponseEntity<List<InvitedEmailResponse>> getinvitedEmails() {
+        return ResponseEntity.status(HttpStatus.OK).body(invitedEmailService.findAll());
+    }
+
+    // 관리자 로그인
     @PostMapping("/admin")
     public ResponseEntity<AdminLoginResponse> localLogin(@Valid @RequestBody LoginRequest loginRequest) {
         AuthAdmin authAdmin = authService.findAuthAdmin(loginRequest.getEmail(), loginRequest.getPassword());
@@ -49,18 +68,27 @@ public class AuthController {
                 .body(adminLoginResponse);
     }
 
+    // 리프레시 토큰 요청
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@CookieValue String refreshToken) {
-        Claims claims = jwtService.parse(refreshToken);
+    public ResponseEntity<String> refresh(@CookieValue String refreshToken,
+                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
+        Claims refreshClaims = jwtService.parse(refreshToken);
+        Claims accessClaims = jwtService.parse(accessToken);
 
-        JwtPayload jwtPayload = JwtPayload.builder()
-                .memberAuthority(jwtService.getMemberAuthority(claims))
-                .memberNickname(jwtService.getMemberNickname(claims))
-                .memberId(jwtService.getMemberId(claims))
-                .classId(jwtService.getClassId(claims))
+        if(!jwtService.isValid(accessClaims, refreshClaims)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
+                    .build();
+        }
+
+        JwtPayload refreshPayload = JwtPayload.builder()
+                .memberAuthority(jwtService.getMemberAuthority(refreshClaims))
+                .memberNickname(jwtService.getMemberNickname(refreshClaims))
+                .memberId(jwtService.getMemberId(refreshClaims))
+                .classId(jwtService.getClassId(refreshClaims))
                 .build();
 
-        Tokens tokens = jwtService.generateTokens(jwtPayload);
+        Tokens tokens = jwtService.generateTokens(refreshPayload);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
@@ -68,7 +96,8 @@ public class AuthController {
                 .body(tokens.getAccessToken());
     }
 
-    @DeleteMapping("")
+    // 로그아웃 요청
+    @DeleteMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
