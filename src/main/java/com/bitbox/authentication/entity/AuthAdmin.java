@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
-@Table(indexes = @Index(name = "idx_email_password", columnList = "adminEmail, adminPassword"))
+@Table(indexes = @Index(name = "idx_email", columnList = "adminEmail"))
 public class AuthAdmin {
     @Id
     private String adminId;

@@ -5,8 +5,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Base64;
+import java.util.Base64.Decoder;
 
 @EnableFeignClients
 @SpringBootApplication
@@ -22,8 +24,13 @@ public class AuthenticationApplication {
 	}
 
 	@Bean
-	Base64.Decoder decoder() {
+	Decoder decoder() {
 		return Base64.getDecoder();
+	}
+
+	@Bean
+	BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
 	}
 
 }

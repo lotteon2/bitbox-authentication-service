@@ -1,12 +1,13 @@
 package com.bitbox.authentication.dto.request;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
 @Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
     @NotEmpty
     private String email;
