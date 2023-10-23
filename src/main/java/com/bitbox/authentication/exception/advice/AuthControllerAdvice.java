@@ -1,7 +1,7 @@
 package com.bitbox.authentication.exception.advice;
 
 import com.bitbox.authentication.exception.ErrorResponse;
-import com.bitbox.authentication.exception.NotFoundException;
+import com.bitbox.authentication.exception.CustomNotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
@@ -14,7 +14,7 @@ public class AuthControllerAdvice {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse notFoundException(NotFoundException e) {
+    public ErrorResponse notFoundException(CustomNotFoundException e) {
         return ErrorResponse.builder()
                 .message(e.getMessage())
                 .build();
