@@ -24,12 +24,12 @@ public class AuthControllerAdvice {
     @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
     public ErrorResponse feignException(FeignException e) {
         return ErrorResponse.builder()
-                .message("잠시 후 다시 시도해주세요") // 다른 서비스가 UNAVAILABLE인 경우
+                .message("외부 서버와의 통신에 실패했습니다") // 다른 서비스가 UNAVAILABLE인 경우
                 .build();
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse jsonProcessingException(JsonProcessingException e) {
         return ErrorResponse.builder()
                 .message("잠시 후 다시 시도해주세요") //
