@@ -4,6 +4,7 @@ import com.bitbox.authentication.dto.request.InvitedEmailRequest;
 import com.bitbox.authentication.dto.request.LoginRequest;
 import com.bitbox.authentication.dto.response.AdminLoginResponse;
 import com.bitbox.authentication.dto.response.InvitedEmailResponse;
+import com.bitbox.authentication.dto.response.LoginResponse;
 import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
@@ -77,8 +78,8 @@ public class AuthController {
 
     // 리프레시 토큰 요청
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@CookieValue String refreshToken,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
+    public ResponseEntity<LoginResponse> refresh(@CookieValue String refreshToken,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
         Claims refreshClaims = jwtService.parse(refreshToken);
         Claims accessClaims = jwtService.parse(accessToken);
 
@@ -97,10 +98,16 @@ public class AuthController {
 
         Tokens tokens = jwtService.generateTokens(refreshPayload);
 
+        LoginResponse loginResponse = LoginResponse.builder()
+                .sessionToken(tokens.getSessionToken())
+                .accessToken(tokens.getAccessToken())
+                .authority(refreshPayload.getMemberAuthority())
+                .build();
+
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
-                .body(tokens.getAccessToken());
+                .body(loginResponse);
     }
 
     // 로그아웃 요청
