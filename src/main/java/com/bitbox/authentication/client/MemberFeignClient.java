@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
-        name = "memberFeignClient",
-        url = "localhost:8000/user-service",
+        name = "user-service",
         configuration = MemberFeignConfig.class
 )
 @Component
