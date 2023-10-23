@@ -36,6 +36,13 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    // 초대된 교육생 삭제
+    @DeleteMapping("/invitation")
+    public ResponseEntity<Void> deleteInviteMember(@Valid @RequestHeader String email) {
+        invitedEmailService.delete(email);
+        return ResponseEntity.ok().build();
+    }
+
     // 초대된 교육생 전체 목록 조회
     @GetMapping("/invitation")
     public ResponseEntity<List<InvitedEmailResponse>> getinvitedEmails() {
