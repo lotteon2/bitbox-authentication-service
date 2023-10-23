@@ -30,14 +30,14 @@ public class AuthController {
     private final InvitedEmailService invitedEmailService;
 
     // 교육생 초대 시 REST 요청? kafka?
-    @PostMapping("/invited-member")
+    @PostMapping("/invitation")
     public ResponseEntity<Void> inviteMember(@Valid @RequestBody InvitedEmailRequest invitedEmailRequest) {
         invitedEmailService.save(invitedEmailRequest);
         return ResponseEntity.ok().build();
     }
 
     // 초대된 교육생 전체 목록 조회
-    @GetMapping("/invited-member")
+    @GetMapping("/invitation")
     public ResponseEntity<List<InvitedEmailResponse>> getinvitedEmails() {
         return ResponseEntity.status(HttpStatus.OK).body(invitedEmailService.findAll());
     }
