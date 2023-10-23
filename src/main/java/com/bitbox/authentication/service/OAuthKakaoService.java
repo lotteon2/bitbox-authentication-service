@@ -117,7 +117,7 @@ public class OAuthKakaoService {
                     .classId(null)
                     .memberId(memberCreateResponse.getBody())
                     .memberNickname(kakaoIdTokenPayload.getNickname())
-                    .memberAuthority(AuthorityType.TRAINEE)
+                    .memberAuthority(AuthorityType.GENERAL)
                     .build();
         }
 
