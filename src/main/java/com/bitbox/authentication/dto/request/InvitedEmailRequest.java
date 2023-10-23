@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Builder
@@ -16,7 +17,7 @@ public class InvitedEmailRequest {
     @NotEmpty
     private String email;
 
-    @NotEmpty
+    @NotNull
     private Long classId;
 
     @NotEmpty
