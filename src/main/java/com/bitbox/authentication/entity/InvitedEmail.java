@@ -13,9 +13,6 @@ import org.springframework.data.redis.core.index.Indexed;
 @RedisHash(value = "invited_email")
 public class InvitedEmail {
     @Id
-    private String id;
-
-    @Indexed
     private String email;
 
     private Long classId;
