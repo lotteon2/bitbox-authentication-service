@@ -49,6 +49,7 @@ public class OAuthController {
             Tokens tokens = jwtService.generateTokens(jwtPayload);
 
             LoginResponse loginResponse = LoginResponse.builder()
+                    .sessionToken(tokens.getSessionToken())
                     .accessToken(tokens.getAccessToken())
                     .authority(jwtPayload.getMemberAuthority())
                     .build();

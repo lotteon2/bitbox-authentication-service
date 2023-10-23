@@ -21,6 +21,7 @@ public class JwtService {
         long regDate = System.currentTimeMillis();
 
         return Tokens.builder()
+                .sessionToken(jwtProvider.generateToken(regDate, TokenType.SESSION, jwtPayload))
                 .accessToken(jwtProvider.generateToken(regDate, TokenType.ACCESS, jwtPayload))
                 .refreshToken(jwtProvider.generateToken(regDate, TokenType.REFRESH, jwtPayload))
                 .build();
