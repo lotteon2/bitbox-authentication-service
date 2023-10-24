@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,10 @@ public class InvitedEmailService {
     public void delete(String email) {
         InvitedEmail invitedEmail = invitedEmailRepository.findByEmail(email).orElseThrow(() -> new CustomNotFoundException("초대된 교육생이 존재하지 않습니다"));
         invitedEmailRepository.delete(invitedEmail);
+    }
+
+    public Optional<InvitedEmail> findInvitedEmail(String email) {
+        return invitedEmailRepository.findByEmail(email);
     }
 
     public List<InvitedEmailResponse> findAll() {

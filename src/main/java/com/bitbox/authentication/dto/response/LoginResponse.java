@@ -14,4 +14,6 @@ public class LoginResponse {
     private String accessToken;
     private String sessionToken;
     private AuthorityType authority;
+    private Long classId;
+    private boolean isInvited;
 }
