@@ -21,7 +21,7 @@ public class AuthControllerAdvice {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    @ResponseStatus(HttpStatus.BAD_GATEWAY)
     public ErrorResponse feignException(FeignException e) {
         return ErrorResponse.builder()
                 .message("외부 서버와의 통신에 실패했습니다") // 다른 서비스가 UNAVAILABLE인 경우
