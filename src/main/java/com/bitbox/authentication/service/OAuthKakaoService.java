@@ -69,6 +69,7 @@ public class OAuthKakaoService {
             jwtPayload = JwtPayload.builder()
                     .memberId(authMember.get().getMemberId())
                     .classId(authMember.get().getClassId())
+                    .memberProfileImg(authMember.get().getMemberProfileImg())
                     .memberNickname(authMember.get().getMemberNickname())
                     .memberAuthority(AuthorityType.TRAINEE)
                     .build();
@@ -88,6 +89,7 @@ public class OAuthKakaoService {
             jwtPayload = JwtPayload.builder()
                     .classId(invitedEmail.get().getClassId())
                     .memberId(memberCreateResponse.getBody())
+                    .memberProfileImg(kakaoIdTokenPayload.getPicture())
                     .memberNickname(kakaoIdTokenPayload.getNickname())
                     .memberAuthority(AuthorityType.TRAINEE)
                     .build();
@@ -116,6 +118,7 @@ public class OAuthKakaoService {
             jwtPayload = JwtPayload.builder()
                     .classId(null)
                     .memberId(memberCreateResponse.getBody())
+                    .memberProfileImg(kakaoIdTokenPayload.getPicture())
                     .memberNickname(kakaoIdTokenPayload.getNickname())
                     .memberAuthority(AuthorityType.GENERAL)
                     .build();

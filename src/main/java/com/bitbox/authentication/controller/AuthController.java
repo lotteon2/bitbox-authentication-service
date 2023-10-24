@@ -58,6 +58,7 @@ public class AuthController {
         JwtPayload jwtPayload = JwtPayload.builder()
                 .memberAuthority(authAdmin.getAdminAuthority())
                 .memberNickname(authAdmin.getAdminName())
+                .memberProfileImg(authAdmin.getAdminProfileImg())
                 .memberId(authAdmin.getAdminId())
                 .classId(null)
                 .build();

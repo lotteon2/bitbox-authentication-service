@@ -25,6 +25,9 @@ public class AuthAdmin {
     @Enumerated(EnumType.STRING)
     private AuthorityType adminAuthority;
 
+    @Column
+    private String adminProfileImg;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
