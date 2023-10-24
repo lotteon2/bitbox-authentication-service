@@ -63,12 +63,11 @@ public class AuthController {
                 .build();
 
         Tokens tokens = jwtService.generateTokens(jwtPayload);
-
-        AdminLoginResponse adminLoginResponse = new AdminLoginResponse(
-                tokens.getAccessToken(),
-                jwtPayload.getMemberAuthority(),
-                authService.isFirstLogin(authAdmin)
-        );
+        AdminLoginResponse adminLoginResponse = AdminLoginResponse.builder()
+                .accessToken(tokens.getAccessToken())
+                .authority(jwtPayload.getMemberAuthority())
+                .isFirstLogin(authService.isFirstLogin(authAdmin))
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
