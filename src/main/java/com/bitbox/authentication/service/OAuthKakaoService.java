@@ -30,10 +30,6 @@ public class OAuthKakaoService {
     private final ObjectMapper objectMapper;
     private final Decoder decoder;
 
-    private final AuthMemberRepository authMemberRepository;
-    private final InvitedEmailRepository invitedEmailRepository;
-    private final MemberFeignClient memberFeignClient;
-
     public KakaoTokenRequest createKakaoTokenRequest(String code) {
         return KakaoTokenRequest.builder()
                 .code(code)
