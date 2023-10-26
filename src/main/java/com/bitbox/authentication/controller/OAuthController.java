@@ -59,6 +59,7 @@ public class OAuthController {
 
             Long classId = null;
             JwtPayload jwtPayload = null;
+            boolean isInvited = false;
             if(invitedEmail.isPresent() && authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
                 jwtPayload = JwtPayload.builder()
                         .memberId(authMember.get().getMemberId())
@@ -67,6 +68,13 @@ public class OAuthController {
                         .memberNickname(authMember.get().getMemberNickname())
                         .memberAuthority(AuthorityType.TRAINEE)
                         .build();
+
+                // 초대됐는데 본명이 없으면 본명 설정해야 한다.
+                if(authMember.get().getMemberName().isBlank()) {
+                    isInvited = true;
+                } else { // 이름이 있는 회원인데 초대 이메일이 남아있는 경우 쓰레기값이므로 삭제.
+                    invitedEmailService.delete(authMember.get().getMemberEmail());
+                }
 
                 classId = invitedEmail.get().getClassId();
             }
@@ -124,7 +132,7 @@ public class OAuthController {
                     .sessionToken(tokens.getSessionToken())
                     .accessToken(tokens.getAccessToken())
                     .authority(jwtPayload.getMemberAuthority())
-                    .isInvited(invitedEmail.isPresent())
+                    .isInvited(isInvited)
                     .classId(classId)
                     .build();
 
