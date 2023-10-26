@@ -24,6 +24,7 @@ public class AuthMember {
     @Column
     private String memberName;
 
+    @Column
     private String memberProfileImg;
 
     @Enumerated(EnumType.STRING)
