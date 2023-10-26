@@ -15,7 +15,6 @@ import java.util.Optional;
 
 @SpringBootTest
 @Transactional
-@ActiveProfiles("dev")
 public class InvitedEmailRepoTests {
 
     @Autowired

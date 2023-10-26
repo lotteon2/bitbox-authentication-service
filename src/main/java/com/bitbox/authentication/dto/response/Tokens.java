@@ -7,5 +7,6 @@ import lombok.Data;
 @Builder
 public class Tokens {
     private String accessToken;
+    private String sessionToken;
     private String refreshToken;
 }

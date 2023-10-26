@@ -21,6 +21,7 @@ public class JwtService {
         long regDate = System.currentTimeMillis();
 
         return Tokens.builder()
+                .sessionToken(jwtProvider.generateToken(regDate, TokenType.SESSION, jwtPayload))
                 .accessToken(jwtProvider.generateToken(regDate, TokenType.ACCESS, jwtPayload))
                 .refreshToken(jwtProvider.generateToken(regDate, TokenType.REFRESH, jwtPayload))
                 .build();
@@ -35,7 +36,8 @@ public class JwtService {
                 getClassId(accessClaims).equals(getClassId(refreshClaims)) &&
                 getMemberId(accessClaims).equals(getMemberId(refreshClaims)) &&
                 getMemberNickname(accessClaims).equals(getMemberNickname(refreshClaims)) &&
-                getMemberAuthority(accessClaims).equals(getMemberAuthority(refreshClaims))
+                getMemberAuthority(accessClaims).equals(getMemberAuthority(refreshClaims)) &&
+                getMemberProfileImg(accessClaims).equals(getMemberProfileImg(refreshClaims))
         );
     }
 
@@ -68,5 +70,9 @@ public class JwtService {
 
     public AuthorityType getMemberAuthority(Claims claims) {
         return AuthorityType.valueOf((String) claims.get("member_authority"));
+    }
+
+    public String getMemberProfileImg(Claims claims) {
+        return claims.get("member_profile_img", String.class);
     }
 }

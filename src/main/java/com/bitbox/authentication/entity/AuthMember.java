@@ -21,6 +21,8 @@ public class AuthMember {
     @Column(nullable = false)
     private String memberNickname;
 
+    private String memberProfileImg;
+
     @Enumerated(EnumType.STRING)
     private AuthorityType memberAuthority;
 

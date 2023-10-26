@@ -1,7 +1,7 @@
 package com.bitbox.authentication.service;
 
 import com.bitbox.authentication.entity.AuthAdmin;
-import com.bitbox.authentication.exception.NotFoundException;
+import com.bitbox.authentication.exception.CustomNotFoundException;
 import com.bitbox.authentication.repository.AuthAdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,7 +19,7 @@ public class AuthService {
         Optional<AuthAdmin> authAdmin = authAdminRepository.findByAdminEmailAndDeletedIsFalse(adminEmail);
 
         if(authAdmin.isEmpty() || !bCryptPasswordEncoder.matches(adminPassword, authAdmin.get().getAdminPassword()))
-            throw new NotFoundException("존재하지 않는 계정입니다");
+            throw new CustomNotFoundException("존재하지 않는 계정입니다");
 
         return authAdmin.get();
     }

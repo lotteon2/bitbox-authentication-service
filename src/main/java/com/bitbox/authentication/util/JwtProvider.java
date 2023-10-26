@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +59,7 @@ public class JwtProvider {
         claims.put("class_id", jwtPayload.getClassId());
         claims.put("member_authority", jwtPayload.getMemberAuthority());
         claims.put("member_nickname", jwtPayload.getMemberNickname());
+        claims.put("member_profile_img", jwtPayload.getMemberProfileImg());
 
         return claims;
     }

@@ -1,6 +1,5 @@
 package com.bitbox.authentication.service;
 
-import com.bitbox.authentication.client.KafkaClient;
 import com.bitbox.authentication.client.MemberFeignClient;
 import com.bitbox.authentication.dto.KakaoIdTokenPayload;
 import com.bitbox.authentication.dto.request.KakaoTokenRequest;
@@ -34,7 +33,6 @@ public class OAuthKakaoService {
     private final AuthMemberRepository authMemberRepository;
     private final InvitedEmailRepository invitedEmailRepository;
     private final MemberFeignClient memberFeignClient;
-    private final KafkaClient memberKafkaClient;
 
     public KakaoTokenRequest createKakaoTokenRequest(String code) {
         return KakaoTokenRequest.builder()
@@ -52,75 +50,5 @@ public class OAuthKakaoService {
         } catch (JsonProcessingException e) {
             throw new InternalException(e);
         }
-    }
-
-    // TODO : REFACTORING
-    public JwtPayload convertToJwtPayload(KakaoIdTokenPayload kakaoIdTokenPayload) throws FeignException {
-        Optional<AuthMember> authMember =
-                authMemberRepository.findByMemberEmailAndDeletedIsFalse(kakaoIdTokenPayload.getEmail());
-        Optional<InvitedEmail> invitedEmail =
-                invitedEmailRepository.findByEmail(kakaoIdTokenPayload.getEmail());
-
-        JwtPayload jwtPayload = null;
-        if(invitedEmail.isPresent() && authMember.isPresent()) { // UPDATE_MEMBER_AUTHORITY_TRAINEE
-            memberKafkaClient.createMemberAuthorityModifyEvent(authMember.get().getMemberId(),
-                    authMember.get().getMemberAuthority());
-
-            jwtPayload = JwtPayload.builder()
-                    .memberId(authMember.get().getMemberId())
-                    .classId(authMember.get().getClassId())
-                    .memberNickname(authMember.get().getMemberNickname())
-                    .memberAuthority(AuthorityType.TRAINEE)
-                    .build();
-
-            invitedEmailRepository.delete(invitedEmail.get());
-        }
-        
-        if(invitedEmail.isPresent() && authMember.isEmpty()) { // CREATE_MEMBER_AUTHORITY_TRAINEE
-            ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRegisterDto.builder()
-                    .email(kakaoIdTokenPayload.getEmail())
-                    .name(kakaoIdTokenPayload.getNickname())
-                    .authority(AuthorityType.TRAINEE)
-                    .profileImg(kakaoIdTokenPayload.getPicture())
-                    .classId(invitedEmail.get().getClassId())
-                    .build());
-
-            jwtPayload = JwtPayload.builder()
-                    .classId(invitedEmail.get().getClassId())
-                    .memberId(memberCreateResponse.getBody())
-                    .memberNickname(kakaoIdTokenPayload.getNickname())
-                    .memberAuthority(AuthorityType.TRAINEE)
-                    .build();
-
-            invitedEmailRepository.delete(invitedEmail.get());
-        }
-        
-        if(invitedEmail.isEmpty() && authMember.isPresent()) { // LOG_IN
-            jwtPayload = JwtPayload.builder()
-                    .classId(authMember.get().getClassId())
-                    .memberId(authMember.get().getMemberId())
-                    .memberNickname(authMember.get().getMemberNickname())
-                    .memberAuthority(authMember.get().getMemberAuthority())
-                    .build();
-        }
-        
-        if(invitedEmail.isEmpty() && authMember.isEmpty()) { // CREATE_MEMBER_AUTHORITY_GENERAL
-            ResponseEntity<String> memberCreateResponse = memberFeignClient.createMember(MemberRegisterDto.builder()
-                    .email(kakaoIdTokenPayload.getEmail())
-                    .name(kakaoIdTokenPayload.getNickname())
-                    .authority(AuthorityType.GENERAL)
-                    .profileImg(kakaoIdTokenPayload.getPicture())
-                    .classId(null)
-                    .build());
-
-            jwtPayload = JwtPayload.builder()
-                    .classId(null)
-                    .memberId(memberCreateResponse.getBody())
-                    .memberNickname(kakaoIdTokenPayload.getNickname())
-                    .memberAuthority(AuthorityType.TRAINEE)
-                    .build();
-        }
-
-        return jwtPayload;
     }
 }

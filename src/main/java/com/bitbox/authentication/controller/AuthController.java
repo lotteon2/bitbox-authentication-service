@@ -4,6 +4,7 @@ import com.bitbox.authentication.dto.request.InvitedEmailRequest;
 import com.bitbox.authentication.dto.request.LoginRequest;
 import com.bitbox.authentication.dto.response.AdminLoginResponse;
 import com.bitbox.authentication.dto.response.InvitedEmailResponse;
+import com.bitbox.authentication.dto.response.LoginResponse;
 import com.bitbox.authentication.dto.response.Tokens;
 import com.bitbox.authentication.entity.AuthAdmin;
 import com.bitbox.authentication.service.AuthService;
@@ -30,14 +31,21 @@ public class AuthController {
     private final InvitedEmailService invitedEmailService;
 
     // 교육생 초대 시 REST 요청? kafka?
-    @PostMapping("/invited-member")
+    @PostMapping("/invitation")
     public ResponseEntity<Void> inviteMember(@Valid @RequestBody InvitedEmailRequest invitedEmailRequest) {
         invitedEmailService.save(invitedEmailRequest);
         return ResponseEntity.ok().build();
     }
 
+    // 초대된 교육생 삭제
+    @DeleteMapping("/invitation")
+    public ResponseEntity<Void> deleteInviteMember(@Valid @RequestHeader String email) {
+        invitedEmailService.delete(email);
+        return ResponseEntity.ok().build();
+    }
+
     // 초대된 교육생 전체 목록 조회
-    @GetMapping("/invited-member")
+    @GetMapping("/invitation")
     public ResponseEntity<List<InvitedEmailResponse>> getinvitedEmails() {
         return ResponseEntity.status(HttpStatus.OK).body(invitedEmailService.findAll());
     }
@@ -50,17 +58,17 @@ public class AuthController {
         JwtPayload jwtPayload = JwtPayload.builder()
                 .memberAuthority(authAdmin.getAdminAuthority())
                 .memberNickname(authAdmin.getAdminName())
+                .memberProfileImg(authAdmin.getAdminProfileImg())
                 .memberId(authAdmin.getAdminId())
                 .classId(null)
                 .build();
 
         Tokens tokens = jwtService.generateTokens(jwtPayload);
-
-        AdminLoginResponse adminLoginResponse = new AdminLoginResponse(
-                tokens.getAccessToken(),
-                jwtPayload.getMemberAuthority(),
-                authService.isFirstLogin(authAdmin)
-        );
+        AdminLoginResponse adminLoginResponse = AdminLoginResponse.builder()
+                .accessToken(tokens.getAccessToken())
+                .authority(jwtPayload.getMemberAuthority())
+                .isFirstLogin(authService.isFirstLogin(authAdmin))
+                .build();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
@@ -70,8 +78,8 @@ public class AuthController {
 
     // 리프레시 토큰 요청
     @PostMapping("/refresh")
-    public ResponseEntity<String> refresh(@CookieValue String refreshToken,
-                                          @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
+    public ResponseEntity<LoginResponse> refresh(@CookieValue String refreshToken,
+                                                 @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
         Claims refreshClaims = jwtService.parse(refreshToken);
         Claims accessClaims = jwtService.parse(accessToken);
 
@@ -90,10 +98,16 @@ public class AuthController {
 
         Tokens tokens = jwtService.generateTokens(refreshPayload);
 
+        LoginResponse loginResponse = LoginResponse.builder()
+                .sessionToken(tokens.getSessionToken())
+                .accessToken(tokens.getAccessToken())
+                .authority(refreshPayload.getMemberAuthority())
+                .build();
+
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
-                .body(tokens.getAccessToken());
+                .body(loginResponse);
     }
 
     // 로그아웃 요청
