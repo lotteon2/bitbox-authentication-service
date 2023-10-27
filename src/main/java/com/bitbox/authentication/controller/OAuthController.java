@@ -21,6 +21,7 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -43,6 +44,9 @@ public class OAuthController {
     private final InvitedEmailService invitedEmailService;
     private final OAuthKakaoService oAuthKakaoService;
     private final JwtService jwtService;
+
+    @Value("${domain.bitbox}")
+    private String domain;
 
     // TODO : REFACTORING
     // 소셜 로그인
@@ -137,7 +141,7 @@ public class OAuthController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
                     .body(loginResponse);
     }
 }

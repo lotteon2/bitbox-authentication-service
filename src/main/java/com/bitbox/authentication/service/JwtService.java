@@ -7,6 +7,7 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
@@ -41,11 +42,11 @@ public class JwtService {
         );
     }
 
-    public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge) {
+    public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge, String domain) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .maxAge(maxAge)
                 .path("/")
-                .domain("localhost") // TODO : env 등으로 변경?
+                .domain(domain) // TODO : env 등으로 변경?
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)
