@@ -13,8 +13,6 @@ import com.bitbox.authentication.service.AuthMemberService;
 import com.bitbox.authentication.service.InvitedEmailService;
 import com.bitbox.authentication.service.JwtService;
 import com.bitbox.authentication.service.OAuthKakaoService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import feign.FeignException;
 import io.github.bitbox.bitbox.dto.MemberRegisterDto;
 import io.github.bitbox.bitbox.enums.AuthorityType;
 import io.github.bitbox.bitbox.enums.TokenType;
@@ -24,13 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -141,7 +138,7 @@ public class OAuthController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                     .body(loginResponse);
     }
 }
