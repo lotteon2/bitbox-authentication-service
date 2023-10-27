@@ -80,7 +80,7 @@ public class AuthController {
                 .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Set-Cookie")
                 .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
-                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, domain)
+//                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, domain)
                 .header("withCredentials", "true")
                 .header(HttpHeaders.SET_COOKIE,
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
