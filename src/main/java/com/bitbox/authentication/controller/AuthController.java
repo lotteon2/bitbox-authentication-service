@@ -50,7 +50,7 @@ public class AuthController {
 
     // 초대된 교육생 전체 목록 조회
     @GetMapping("/invitation")
-    public ResponseEntity<List<InvitedEmailResponse>> getinvitedEmails() {
+    public ResponseEntity<List<InvitedEmailResponse>> getInvitedEmails() {
         return ResponseEntity.status(HttpStatus.OK).body(invitedEmailService.findAll());
     }
 
@@ -76,7 +76,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                 .body(adminLoginResponse);
     }
 
@@ -110,7 +110,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                 .body(loginResponse);
     }
 
