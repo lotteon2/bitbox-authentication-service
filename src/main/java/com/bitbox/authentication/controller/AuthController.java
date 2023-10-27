@@ -90,7 +90,7 @@ public class AuthController {
 
     // 리프레시 토큰 요청
     @PostMapping("/refresh")
-    public ResponseEntity<LoginResponse> refresh(@CookieValue String refreshToken,
+    public ResponseEntity<LoginResponse> refresh(@CookieValue(name = "refreshToken") String refreshToken,
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
         if(accessToken == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
