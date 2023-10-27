@@ -14,6 +14,7 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,9 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthService authService;
     private final InvitedEmailService invitedEmailService;
+
+    @Value("${domain.admin}")
+    private String domain;
 
     // 교육생 초대 시 REST 요청? kafka?
     @PostMapping("/invitation")
@@ -72,7 +76,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
                 .body(adminLoginResponse);
     }
 
@@ -85,7 +89,7 @@ public class AuthController {
 
         if(!jwtService.isValid(accessClaims, refreshClaims)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0, domain).toString())
                     .build();
         }
 
@@ -106,7 +110,7 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue()).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue(), domain).toString())
                 .body(loginResponse);
     }
 
@@ -114,7 +118,7 @@ public class AuthController {
     @DeleteMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
+                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0, domain).toString())
                 .build();
     }
 }
