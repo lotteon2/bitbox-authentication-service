@@ -14,6 +14,7 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -75,6 +76,7 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_HTML.toString())
                 .header(HttpHeaders.SET_COOKIE,
 //                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), 0, domain).toString())
