@@ -16,6 +16,7 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -76,7 +77,8 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_HTML.toString())
+                .header(HttpHeaders.CACHE_CONTROL, "no-cache", "no-store", "must-revalidate")
+                .header(HttpHeaders.CONTENT_TYPE, "text/html; charset=UTF-8")
                 .header(HttpHeaders.SET_COOKIE,
 //                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), 0, domain).toString())
