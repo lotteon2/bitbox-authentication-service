@@ -113,6 +113,9 @@ public class AuthController {
                 .build();
 
         return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Set-Cookie")
+                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
+                .header("withCredentials", "true")
                 .header(HttpHeaders.SET_COOKIE,
 //                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), 0, domain).toString())
