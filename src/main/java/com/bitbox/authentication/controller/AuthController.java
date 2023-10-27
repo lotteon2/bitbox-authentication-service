@@ -78,7 +78,6 @@ public class AuthController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.CACHE_CONTROL, "no-cache", "no-store", "must-revalidate")
-                .header(HttpHeaders.CONTENT_TYPE, "text/html; charset=UTF-8")
                 .header(HttpHeaders.SET_COOKIE,
 //                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
                         jwtService.refreshTokenCookie(tokens.getRefreshToken(), 0, domain).toString())
