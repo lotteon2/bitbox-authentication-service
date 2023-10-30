@@ -105,6 +105,7 @@ public class OAuthController {
                         .classId(authMember.get().getClassId())
                         .memberId(authMember.get().getMemberId())
                         .memberNickname(authMember.get().getMemberNickname())
+                        .memberProfileImg(authMember.get().getMemberProfileImg())
                         .memberAuthority(authMember.get().getMemberAuthority())
                         .build();
             }
