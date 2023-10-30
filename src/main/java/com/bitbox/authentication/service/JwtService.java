@@ -29,16 +29,21 @@ public class JwtService {
 
     public boolean isValid(Claims accessClaims, Claims refreshClaims) {
         // 리프레시 토큰 만료 시간 지났을 시
-        if(refreshClaims.getExpiration().getTime() > System.currentTimeMillis()) return false;
+        if(refreshClaims.getExpiration().getTime() < System.currentTimeMillis()) return false;
 
-        // Claims equals 없음.
-        return (
-                getClassId(accessClaims).equals(getClassId(refreshClaims)) &&
-                getMemberId(accessClaims).equals(getMemberId(refreshClaims)) &&
+        boolean flag = getMemberId(accessClaims).equals(getMemberId(refreshClaims)) &&
                 getMemberNickname(accessClaims).equals(getMemberNickname(refreshClaims)) &&
-                getMemberAuthority(accessClaims).equals(getMemberAuthority(refreshClaims)) &&
-                getMemberProfileImg(accessClaims).equals(getMemberProfileImg(refreshClaims))
-        );
+                getMemberAuthority(accessClaims).equals(getMemberAuthority(refreshClaims));
+
+        if(getClassId(accessClaims) != null && getClassId(refreshClaims) != null) {
+            flag = getClassId(accessClaims).equals(getClassId(refreshClaims));
+        }
+
+        if(getMemberProfileImg(accessClaims) != null && getMemberProfileImg(refreshClaims) != null) {
+            flag = getMemberProfileImg(accessClaims).equals(getMemberProfileImg(refreshClaims));
+        }
+
+        return flag;
     }
 
     public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge, String domain) {

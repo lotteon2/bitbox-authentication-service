@@ -99,7 +99,7 @@ public class AuthController {
         }
 
         Claims refreshClaims = jwtService.parse(refreshToken);
-        Claims accessClaims = jwtService.parse(accessToken);
+        Claims accessClaims = jwtService.parse(accessToken.replace("Bearer", ""));
 
         if(!jwtService.isValid(accessClaims, refreshClaims)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
