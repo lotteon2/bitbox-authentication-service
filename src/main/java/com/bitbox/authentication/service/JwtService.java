@@ -46,11 +46,10 @@ public class JwtService {
         return flag;
     }
 
-    public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge, String domain) {
+    public ResponseCookie refreshTokenCookie(String refreshToken, long maxAge) {
         return ResponseCookie.from("refreshToken", refreshToken)
                 .maxAge(maxAge)
                 .path("/")
-//                .domain(domain) // TODO : env 등으로 변경?
                 .httpOnly(true)
                 .sameSite("None")
                 .secure(true)

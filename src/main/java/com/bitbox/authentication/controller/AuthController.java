@@ -14,15 +14,12 @@ import io.github.bitbox.bitbox.enums.TokenType;
 import io.github.bitbox.bitbox.jwt.JwtPayload;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -33,9 +30,6 @@ public class AuthController {
     private final JwtService jwtService;
     private final AuthService authService;
     private final InvitedEmailService invitedEmailService;
-
-    @Value("${domain.admin}")
-    private String domain;
 
     // 교육생 초대 시 REST 요청? kafka?
     @PostMapping("/invitation")
@@ -81,10 +75,9 @@ public class AuthController {
                 .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Set-Cookie")
                 .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
-//                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, domain)
                 .header("withCredentials", "true")
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000).toString())
                 .body(adminLoginResponse);
     }
 
@@ -94,7 +87,7 @@ public class AuthController {
                                                  @RequestHeader(HttpHeaders.AUTHORIZATION) String accessToken) {
         if(accessToken == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0, domain).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
                     .build();
         }
 
@@ -103,7 +96,7 @@ public class AuthController {
 
         if(!jwtService.isValid(accessClaims, refreshClaims)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0, domain).toString())
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
                     .build();
         }
 
@@ -126,10 +119,9 @@ public class AuthController {
                 .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
                 .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Set-Cookie")
                 .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
-//                .header(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, domain)
                 .header("withCredentials", "true")
                 .header(HttpHeaders.SET_COOKIE,
-                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
+                        jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000).toString())
                 .body(loginResponse);
     }
 
@@ -137,7 +129,7 @@ public class AuthController {
     @DeleteMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0, domain).toString())
+                .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie("delete", 0).toString())
                 .build();
     }
 }

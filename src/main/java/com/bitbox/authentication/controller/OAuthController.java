@@ -42,9 +42,6 @@ public class OAuthController {
     private final OAuthKakaoService oAuthKakaoService;
     private final JwtService jwtService;
 
-    @Value("${domain.bitbox}")
-    private String domain;
-
     // TODO : REFACTORING
     // 소셜 로그인
     @GetMapping("/kakao/token")
@@ -139,7 +136,11 @@ public class OAuthController {
                     .build();
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000, domain).toString())
+                    .header(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+                    .header(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Set-Cookie")
+                    .header(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true")
+                    .header("withCredentials", "true")
+                    .header(HttpHeaders.SET_COOKIE, jwtService.refreshTokenCookie(tokens.getRefreshToken(), TokenType.REFRESH.getValue() / 1000).toString())
                     .body(loginResponse);
     }
 }
