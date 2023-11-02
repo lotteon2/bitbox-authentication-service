@@ -98,6 +98,7 @@ public class OAuthController {
                         .build();
 
                 classId = invitedEmail.get().getClassId();
+                isInvited = true;
             }
 
             if(invitedEmail.isEmpty() && authMember.isPresent()) { // LOG_IN
